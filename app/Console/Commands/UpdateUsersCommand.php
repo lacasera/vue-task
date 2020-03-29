@@ -51,9 +51,9 @@ class UpdateUsersCommand extends Command
                 'email' => $user->email
             ]);
 
-            $user->firstname = $newUserInfo['firstname'];
-            $user->lastname = $newUserInfo['lastname'];
-            $user->timezone = $newUserInfo['timezone'];
+            $user->first_name = $newUserInfo['first_name'];
+            $user->last_name = $newUserInfo['first_name'];
+            $user->time_zone = $newUserInfo['time_zone'];
 
             $user->update();
         });

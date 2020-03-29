@@ -44,8 +44,8 @@ class UpdateUsersTest extends TestCase
 
         $updatedUser = User::first();
 
-        $this->assertNotEquals($user->firstname, $updatedUser->firstname);
-        $this->assertNotEquals($user->lastname, $updatedUser->lastname);
+        $this->assertNotEquals($user->first_name, $updatedUser->first_name);
+        $this->assertNotEquals($user->last_name, $updatedUser->last_name);
     }
 
 }
