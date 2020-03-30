@@ -1,3 +1,13 @@
+#### Setup Instructions
+1. Clone repo
+2. create `.env` by running `.env.example`
+3. run `composer install`
+4. run migrations `php artisan migrate`
+5. seed database `php artisan db:seed`
+ 
+
+#### Batch Update Implementation
+
 Upon each update to the user record,
 I push the data to be updated to a database table called `pending_updates_requests`
 
@@ -10,7 +20,7 @@ When this command runs, I check for the following conditions
 1. `number_of_calls_made` is set and is less than `50`
 2. number of records in the  `pending_updates_requests` is up to a `1000`
 
-if the 2 conditions are satisfied, I format the data, pass it to and event the makes the batch requests
+if the 2 conditions are satisfied, I format the data, pass it to an event then makes the batch requests
 and then delete the 1000 records from the database.
 
 
