@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Events\BatchUpdate;
 use App\PendingUpdateRequest;
+use App\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 
@@ -16,7 +17,6 @@ class BatchUpdatesCommand extends Command
      */
     protected $signature = 'batch:updates';
 
-    protected $batchRequestData = ['batches' => []];
 
     protected $numberofRuns;
 
@@ -49,31 +49,23 @@ class BatchUpdatesCommand extends Command
     {
         $this->initializeCounter();
 
-        if (!is_null($this->getCurrentCounter()) && $this->canRunUpdateRequest()) {
+        if ($this->canRunUpdateRequest()) {
 
-        
             $total = PendingUpdateRequest::count();
 
             if ($total >= $this->runsLimit) {
 
-                $requestData = ['subscribers' => []];
+                $requestData = [ 
+                    'batches' => [
+                        'subscribers' =>  PendingUpdateRequest::take(1000)->pluck('data')
+                    ]
+                ];
+                
+                event(new BatchUpdate($requestData));
 
-                foreach (PendingUpdateRequest::take($this->runsLimit)->cursor() as $updatedRecord) {
-                    array_push($requestData['subscribers'], $updatedRecord->data);
-                    logger("[{$updatedRecord->user->id}] firstname: {$updatedRecord->user->first_name} time_zone: {$updatedRecord->user->time_zone}");
-                    $updatedRecord->delete();
-                }
-
-                array_push($this->batchRequestData['batches'], $requestData);
-
-                event(new BatchUpdate($this->batchRequestData));
                 Redis::incr('number_of_calls_made');
             }
         } else {
-            /**
-             * makes sure the key has not expired before resetting it
-             * it ensures we make the required number of requests within the hour
-             */
             if (!$this->getCurrentCounter()) {
                 $this->resetRuns();
             }
@@ -86,7 +78,7 @@ class BatchUpdatesCommand extends Command
      */
     protected function canRunUpdateRequest()
     {
-        return $this->numberofRuns <= 50;
+        return !is_null($this->getCurrentCounter()) && $this->numberofRuns <= 50;
     }
 
     /**

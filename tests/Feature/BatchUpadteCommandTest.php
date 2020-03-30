@@ -85,5 +85,4 @@ class BatchUpadteCommandTest extends TestCase
         Event::assertNotDispatched(BatchUpdate::class);
     }
 
-
 }

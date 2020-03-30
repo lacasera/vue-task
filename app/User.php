@@ -15,23 +15,33 @@ class User extends Model
     protected $fillable = [
         'first_name', 'last_name', 'time_zone', 'email'
     ];
+
+    protected $appends = ['name'];
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
     
     protected static function booted()
     {
-        static::updated(function($user){
+        static::updated(function($user) {
             $data = [];
 
-            if (($user->first_name !==  $user->getOriginal('first_name')) &&  ($user->last_name !==  $user->getOriginal('last_name'))) {
-                $data['name'] = $user->first_name;
+            if ($user->isDirty('first_name') &&  ($user->isDirty('last_name'))) {
+                $data['name'] = $user->name;
             }
             
-            if (($user->time_zone !==  $user->getOriginal('time_zonee'))) {
+            if ($user->isDirty('time_zone')) {
                 $data['time_zone'] = $user->time_zone;
             }
 
             $data['email'] = $user->email;
 
-            PendingUpdateRequest::create(['user_id' => $user->id, 'data' => json_encode($data)]); 
+            PendingUpdateRequest::updateOrCreate(
+                ['user_id' => $user->id], 
+                ['user_id' => $user->id, 'data' => json_encode($data)]
+            ); 
         });
     }
 }

@@ -2,8 +2,7 @@
 
 namespace App\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\PendingUpdateRequest;
 
 class SendBatchUpdateRequest
 {
@@ -25,6 +24,19 @@ class SendBatchUpdateRequest
      */
     public function handle($event)
     {
-        logger($event->dataToBeUpdated);
+        $event->dataToBeUpdated['batches']['subscribers']->each(function($data){
+            $updateRequest = PendingUpdateRequest::whereJsonContains('data->email', json_decode($data)->email)
+                ->first();
+            
+            $this->logData($updateRequest);
+            
+            $updateRequest->delete();
+        });
+
+    }
+
+    public function logData($data)
+    {
+        logger("[{$data->user->id}] firstname: {$data->user->first_name} time_zone: {$data->user->time_zone}");
     }
 }
