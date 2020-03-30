@@ -3,8 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
-use Monolog\Handler\IFTTTHandler;
 
 class User extends Model
 {
