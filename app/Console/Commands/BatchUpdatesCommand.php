@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Events\BatchUpdate;
 use App\PendingUpdateRequest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
@@ -65,6 +66,7 @@ class BatchUpdatesCommand extends Command
 
                 array_push($this->batchRequestData['batches'], $requestData);
 
+                event(new BatchUpdate($this->batchRequestData));
                 Redis::incr('number_of_calls_made');
             }
         } else {
