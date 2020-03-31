@@ -46,18 +46,25 @@ class UpdateUsersCommand extends Command
 
         $bar->start();
 
+        $this->updateUsers($users);
+       
+        $bar->finish();
+    }
+
+    public function updateUsers($users)
+    {
         $users->each(function ($user) {
-            $newUserInfo = factory(User::class)->raw([
+            $newUserInfo = factory(User::class)->make([
                 'email' => $user->email
             ]);
 
-            $user->firstname = $newUserInfo['firstname'];
-            $user->lastname = $newUserInfo['lastname'];
-            $user->timezone = $newUserInfo['timezone'];
+
+            $user->first_name = $newUserInfo->first_name;
+            $user->last_name = $newUserInfo->last_name;
+            $user->time_zone = $newUserInfo->time_zone;
 
             $user->update();
         });
 
-        $bar->finish();
     }
 }
